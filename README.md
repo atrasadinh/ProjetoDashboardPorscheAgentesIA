@@ -1,8 +1,9 @@
+[README.md](https://github.com/user-attachments/files/33789268/README_corrigido.2.md)
 # porsche-sales-dashboard
 
 Dashboard interativo de vendas Porsche em um único arquivo HTML (Tailwind CSS + Chart.js via CDN), com 100 vendas tratadas embutidas no próprio script.
 
-**Dashboard publicada:** https://atrasadinh.github.io/porsche-sales-dashboard/
+**Dashboard publicada:** atrasadinh.github.io/porsche-sales-dashboard/
 
 ## Arquivos
 
@@ -19,7 +20,7 @@ Dashboard interativo de vendas Porsche em um único arquivo HTML (Tailwind CSS +
 3. **Que parcela das vendas cancela e quanto isso custa?** KPI "Taxa de cancelamento" (7 de 100 vendas, US$ 625.250 não realizados) e o gráfico de funil de status.
 4. **Qual família sustenta a receita?** KPI "Família líder" e gráfico de receita por família (911, 718, Cayenne, Macan, Panamera, Taycan), com a parte entregue e a parte em pipeline. A agrupação é por família porque os 100 registros têm dezenas de variantes, quase todas com uma única venda.
 5. **Onde estão as vendas?** Participação da receita por região dos EUA. O tooltip mostra quantas vendas há por trás de cada fatia, porque a região Northeast tem só 8.
-6. **Como a receita evolui no tempo, e a base permite dizer isso?** Gráfico mensal com receita entregue e em pipeline, mais um aviso fixo no topo sobre a qualidade das datas.
+6. **Como a receita evolui no tempo, e a base permite dizer isso?** Gráfico mensal com barras de receita entregue e receita em pipeline. A linha de vendas ativas foi removida; o gráfico mensal considera apenas registros com data válida até a data de corte.
 
 Os filtros são Família, Região, Status da entrega, Ano, Condição do veículo (novo, seminovo, rodado) e Qualidade da data. Acima dos filtros há uma frase-resumo que se atualiza sozinha e avisa quando a amostra filtrada tem menos de 20 vendas.
 
@@ -43,14 +44,16 @@ A seção "Identidade Visual" veio sem conteúdo, então a IA escolheu a paleta 
 
 **Versão 3:** remoção dos nomes de vendedores do HTML (nenhum filtro ou gráfico os usava) e aviso no gráfico mensal quando há vendas sem data válida.
 
-**Versão 4 (final):** depois de uma revisão crítica pedindo "você aprovaria isso para mostrar à diretoria?", foram feitas estas mudanças:
+**Versão 4:** depois de uma revisão crítica pedindo "você aprovaria isso para mostrar à diretoria?", foram feitas estas mudanças:
 
 - Receita separada em **entregue** e **pipeline**, em vez de uma receita única.
 - **Taxa de cancelamento** e um gráfico de funil de status. O status deixou de abrir em "Exceto cancelados", porque esse padrão escondia justamente o cancelamento.
 - **Ticket mediano** no lugar da média, e filtro de condição do veículo (a quilometragem, que tinha ficado de fora, voltou à base).
 - **Aviso fixo** sobre datas inválidas e futuras, e um filtro "Só com data válida".
 - Frase-resumo dinâmica e aviso de amostra pequena.
-- O requisito original falava em 3 gráficos. A versão final tem **4**, porque o funil de status foi acrescentado nesta revisão. Todos atualizam com os filtros.
+- O requisito original falava em 3 gráficos. A versão final tem **4 gráficos**: receita mensal (entregue e pipeline), funil de status, receita por família e participação por região. Os gráficos acompanham os filtros conforme sua definição; o funil de status ignora o filtro de status para permitir comparar todos os status.
+
+**Versão 5 (atualização):** a linha de contagem de vendas ativas foi removida do gráfico mensal porque sua leitura variava de forma confusa dependendo dos filtros. O gráfico mensal agora mostra somente as barras de receita entregue e pipeline. O KPI “Vendas ativas” continua disponível e não foi removido.
 
 ## Tratamento da base
 
@@ -70,7 +73,7 @@ Passos feitos antes de embutir no HTML:
 5. Data de corte fixa em 21/10/2026: vendas com data posterior (20 no total) são tratadas como datas futuras.
 6. Removidos `customer_name` (nome de cliente), `salesperson` (nome de vendedor) e todas as colunas brutas. A planilha original não está neste repositório.
 
-Definições de negócio usadas nos KPIs: **entregue** é o status `Delivered`; **cancelada** é `Cancelled`; **pipeline** é qualquer outro status (em trânsito, pendente, aguardando etc.); **venda ativa** é entregue mais pipeline.
+Definições de negócio usadas nos KPIs: **entregue** é o status `Delivered`; **cancelada** é `Cancelled`; **pipeline** é qualquer outro status (em trânsito, pendente, aguardando etc.); **venda ativa** é entregue mais pipeline. O KPI “Vendas ativas” permanece, mas o gráfico mensal mostra somente as receitas entregue e em pipeline — não possui uma linha de contagem de vendas ativas.
 
 ## Ferramentas de IA
 
