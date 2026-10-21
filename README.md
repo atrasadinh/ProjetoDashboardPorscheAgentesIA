@@ -2,15 +2,7 @@
 
 Dashboard interativo de vendas Porsche em um único arquivo HTML (Tailwind CSS + Chart.js via CDN), com 100 vendas tratadas embutidas no próprio script.
 
-**Dashboard publicada:** https://SEU-USUARIO.github.io/porsche-sales-dashboard/
-<!-- Troque SEU-USUARIO pelo seu usuário do GitHub depois de ativar o Pages. -->
-
-<!--
-Depois de abrir a dashboard publicada, salve os prints em docs/ e descomente estas linhas:
-
-![Visão geral](docs/dashboard-geral.png)
-![Filtro aplicado: 911 + West](docs/dashboard-filtro-911-west.png)
--->
+**Dashboard publicada:** https://atrasadinh.github.io/porsche-sales-dashboard/
 
 ## Arquivos
 
