@@ -47,7 +47,7 @@ button.reset:hover{background:var(--red);color:#fff}
     <div class="card kpi p-4"><div class="lbl">Ticket mediano</div><div id="kMed" class="disp text-2xl sm:text-3xl font-bold mt-2" style="letter-spacing:.02em"></div><div id="kMedS" class="text-xs mt-1" style="color:var(--muted)"></div></div><div class="card kpi p-4"><div class="lbl">Taxa de cancelamento</div><div id="kCan" class="disp text-2xl sm:text-3xl font-bold mt-2" style="letter-spacing:.02em"></div><div id="kCanS" class="text-xs mt-1" style="color:var(--muted)"></div></div><div class="card kpi p-4"><div class="lbl">Família líder</div><div id="kMd" class="disp text-2xl sm:text-3xl font-bold mt-2" style="letter-spacing:.02em"></div><div id="kMdS" class="text-xs mt-1" style="color:var(--muted)"></div></div>
   </section>
   <section class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-    <div class="card p-4 lg:col-span-2 min-w-0"><div class="lbl mb-3">Receita entregue e pipeline por mês</div><div class="relative h-64 sm:h-80"><canvas id="c1"></canvas></div><div id="nota" class="text-xs mt-2" style="color:var(--muted)"></div></div>
+    <div class="card p-4 lg:col-span-2 min-w-0"><div class="lbl mb-3">Receita (entregue + pipeline) e vendas por mês</div><div class="relative h-64 sm:h-80"><canvas id="c1"></canvas></div><div id="nota" class="text-xs mt-2" style="color:var(--muted)"></div></div>
     <div class="card p-4  min-w-0"><div class="lbl mb-3">Funil de status (ignora o filtro de status)</div><div class="relative h-64 sm:h-80"><canvas id="c2"></canvas></div></div>
     <div class="card p-4 lg:col-span-2 min-w-0"><div class="lbl mb-3">Receita por família de modelo</div><div class="relative h-64"><canvas id="c3"></canvas></div></div>
     <div class="card p-4  min-w-0"><div class="lbl mb-3">Participação da receita por região</div><div class="relative h-64"><canvas id="c4"></canvas></div></div>
@@ -198,9 +198,10 @@ function criarGraficos(){
   const mTick = {callback:x=>mi(x)};
   c1 = new Chart($('c1'), {data:{labels:[],datasets:[
       {type:'bar',label:'Entregue',data:[],backgroundColor:'#d5001c',stack:'r',yAxisID:'y',order:2},
-      {type:'bar',label:'Pipeline',data:[],backgroundColor:'#b8975a',stack:'r',yAxisID:'y',order:2}]},
-    options:{...base,interaction:{mode:'index',intersect:false},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,beginAtZero:true,ticks:mTick}},
-      plugins:{tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+usd(c.parsed.y)}}}}});
+      {type:'bar',label:'Pipeline',data:[],backgroundColor:'#b8975a',stack:'r',yAxisID:'y',order:2},
+      {type:'line',label:'Vendas ativas (n)',data:[],borderColor:'#8c8c96',backgroundColor:'#8c8c96',yAxisID:'y1',tension:.3,pointRadius:4,order:1}]},
+    options:{...base,interaction:{mode:'index',intersect:false},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,beginAtZero:true,ticks:mTick},y1:{beginAtZero:true,position:'right',grid:{drawOnChartArea:false},ticks:{precision:0}}},
+      plugins:{tooltip:{callbacks:{label:c=>c.dataset.yAxisID==='y'?' '+c.dataset.label+': '+usd(c.parsed.y):' Vendas ativas: '+c.parsed.y}}}}});
   c2 = new Chart($('c2'), {type:'bar',data:{labels:[],datasets:[{label:'Vendas',data:[],backgroundColor:[]}]},
     options:{...base,indexAxis:'y',scales:{x:{beginAtZero:true,ticks:{precision:0}},y:{grid:{display:false}}},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.parsed.x+' vendas · '+usd(c2.$rev[c.dataIndex])}}}}});
   c3 = new Chart($('c3'), {type:'bar',data:{labels:[],datasets:[{label:'Entregue',data:[],backgroundColor:'#d5001c'},{label:'Pipeline',data:[],backgroundColor:'#b8975a'}]},
@@ -248,16 +249,13 @@ function render(){
   const k = cores();
   Chart.defaults.color = k.muted; Chart.defaults.borderColor = k.grid;
   const mk = d => d.data.slice(0,7);
-  // O gráfico mensal mostra apenas receita entregue e receita em pipeline.
-  // Meses e valores respeitam os filtros; datas futuras e registros sem data válida ficam de fora.
-  const meses = [...new Set(f.filter(dataOk).map(d=>d.data.slice(0,7)))].sort();
-  const serie = (a, m) => a.filter(d=>dataOk(d) && d.data.slice(0,7)===m);
+  const meses = [...new Set(ativas.filter(dataOk).map(mk))].sort();
+  const serie = (a, m) => a.filter(d=>dataOk(d) && mk(d)===m);
   c1.data.labels = meses.map(rotuloMes);
   c1.data.datasets[0].data = meses.map(m=>soma(serie(ent,m)));
   c1.data.datasets[1].data = meses.map(m=>soma(serie(pipe,m)));
-  $('nota').textContent = meses.length
-    ? 'O gráfico considera registros com data válida até 21/10/2026. Datas futuras e registros sem data não aparecem; aplique “Só com data válida” para excluí-los também dos KPIs.'
-    : 'Não há registros com data válida até 21/10/2026 para os filtros selecionados. Datas futuras e registros sem data não aparecem no gráfico mensal.';
+  c1.data.datasets[2].data = meses.map(m=>serie(ativas,m).length);
+  $('nota').textContent = 'Série com vendas de data válida (até 21/10/2026): ' + ativas.filter(dataOk).length + ' de ' + ativas.length + ' vendas ativas do filtro.';
 
   const porSt = agrupa(semStatus,'status'), sts = ORDEM.filter(s=>porSt[s]);
   c2.$rev = sts.map(s=>soma(porSt[s]));
